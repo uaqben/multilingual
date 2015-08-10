@@ -21,6 +21,10 @@ module Jekyll
       Octopress::Multilingual.posts_by_language(lang)
     end
 
+    def pages_by_language(lang=nil)
+      Octopress::Multilingual.pages_by_language(lang)
+    end
+
     def articles_by_language(lang=nil)
       Octopress::Multilingual.articles_by_language(lang)
     end
@@ -148,4 +152,3 @@ module Jekyll
     end
   end
 end
-

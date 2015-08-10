@@ -75,7 +75,7 @@ module Octopress
       @posts_by_language ||= begin
         posts = site.posts.reverse.select(&:lang).group_by(&:lang)
         ## Add posts that crosspost to all languages
-        
+
         posts.each do |lang, lang_posts|
           if lang != main_language
             lang_posts.concat(crossposts).sort_by!(&:date).reverse!
@@ -84,6 +84,24 @@ module Octopress
 
         posts[main_language] = main_language_posts
         posts
+      end
+
+      @posts_by_language[lang] || []
+    end
+
+    def pages_by_language(lang=nil)
+      @pages_by_language ||= begin
+        pages = site.pages.reverse.select(&:lang).group_by(&:lang)
+        ## Add pages that crosspost to all languages
+        ## commenting out as this was causing compile error by Jekyll; (my) Pages do not have a :date
+        #pages.each do |lang, lang_pages|
+        #  if lang != main_language
+        #    lang_pages.concat(crossposts).sort_by!(&:date).reverse!
+        #  end
+        #end
+
+        pages[main_language] = main_language_pages
+        pages
       end
 
       @posts_by_language[lang] || []
@@ -99,8 +117,18 @@ module Octopress
       end
     end
 
+    def main_language_pages
+      site.pages.reverse.select do |page|
+        page.lang.nil? || page.lang == main_language
+      end
+    end
+
     def posts_without_lang
       @posts_without_lang ||= site.reject(&:lang)
+    end
+
+    def pages_without_lang
+      @pages_without_lang ||= site.reject(&:lang)
     end
 
     def articles_by_language(lang=nil)
@@ -149,7 +177,7 @@ module Octopress
       languages.each do |lang|
         indexes[lang] = {}
         site_indexes.each do |index, posts|
-          posts = posts.select do |p| 
+          posts = posts.select do |p|
             p.lang == lang || (lang == main_language && p.lang.nil?) || p.crosspost_languages
           end
 
@@ -172,8 +200,9 @@ module Octopress
 
     def page_payload(lang)
       payload = {
-        'site' => { 
+        'site' => {
           'posts'      => posts_by_language(lang),
+          'pages'      => pages_by_language(lang),
           'linkposts'  => linkposts_by_language(lang),
           'articles'   => articles_by_language(lang),
           'categories' => categories_by_language(lang),
@@ -194,6 +223,7 @@ module Octopress
         @payload ||= {
           'site' => {
             'posts_by_language'      => posts_by_language,
+            'pages_by_language'      => pages_by_language,
             'linkposts_by_language'  => linkposts_by_language,
             'articles_by_language'   => articles_by_language,
             'categories_by_language' => categories_by_language,
