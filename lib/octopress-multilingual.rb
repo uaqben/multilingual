@@ -104,7 +104,7 @@ module Octopress
         pages
       end
 
-      @posts_by_language[lang] || []
+      @pages_by_language[lang] || []
     end
 
     def crossposts
